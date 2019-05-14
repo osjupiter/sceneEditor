@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Accordion?>
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
@@ -10,9 +11,9 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.shape.Rectangle?>
 
-<StackPane id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.teikoku.FXMLController2">
+<StackPane id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="900.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.teikoku.FXMLController2">
     <children>
-      <TabPane id="tabs" prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="ALL_TABS">
+      <TabPane id="tabs" prefHeight="449.0" prefWidth="643.0" tabClosingPolicy="ALL_TABS">
         <tabs>
           <Tab id="tab" text="name">
             <content>
@@ -22,11 +23,11 @@
                            <items>
                               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
                                  <children>
-                                    <SplitPane dividerPositions="0.8035714285714286" orientation="VERTICAL" prefHeight="338.0" prefWidth="295.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                    <SplitPane dividerPositions="0.5647382920110193" orientation="VERTICAL" prefHeight="338.0" prefWidth="295.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                       <items>
-                                        <AnchorPane id="editor" fx:id="boxPane" minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+                                        <AnchorPane id="editor" fx:id="boxPane" minHeight="0.0" minWidth="0.0" prefHeight="227.0" prefWidth="293.0">
                                              <children>
-                                                <Rectangle fx:id="box" arcHeight="5.0" arcWidth="5.0" fill="DODGERBLUE" height="94.0" layoutX="35.0" layoutY="29.0" stroke="BLACK" strokeType="INSIDE" width="143.0" />
+                                                <Rectangle fx:id="selectbox" arcHeight="5.0" arcWidth="5.0" fill="TRANSPARENT" height="95.0" layoutX="283.0" layoutY="218.0" stroke="#1bdd45" strokeType="INSIDE" strokeWidth="2.0" width="143.0" />
                                              </children>
                                           </AnchorPane>
                                         <AnchorPane id="canvas" minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0" />
@@ -45,11 +46,14 @@
                                           </AnchorPane>
                                           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="189.0" prefWidth="293.0">
                                              <children>
-                                                <Accordion id="accordion" prefHeight="164.0" prefWidth="293.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                                <Accordion id="accordion" fx:id="accordion" prefHeight="164.0" prefWidth="293.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                                   <panes>
-                                                    <TitledPane animated="false" text="untitled 1">
+                                                    <TitledPane fx:id="pane1" animated="false" text="untitled 1">
                                                       <content>
-                                                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                                                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                                               <children>
+                                                                  <Button fx:id="filebtn" layoutX="25.0" layoutY="14.0" mnemonicParsing="false" text="Button" />
+                                                               </children></AnchorPane>
                                                       </content>
                                                     </TitledPane>
                                                     <TitledPane animated="false" text="untitled 2">
