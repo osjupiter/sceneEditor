@@ -1,6 +1,7 @@
 package com.teikoku
 
 import javafx.event.ActionEvent
+import javafx.event.EventHandler
 import javafx.fxml.FXML
 import javafx.fxml.Initializable
 import javafx.scene.Node
@@ -16,19 +17,24 @@ import javafx.scene.shape.Rectangle
 import java.io.File
 import javafx.stage.FileChooser
 import javafx.scene.control.TitledPane
+import javafx.scene.input.MouseEvent
+import javafx.scene.layout.Pane
+import javafx.scene.layout.Region
+import javafx.scene.shape.Circle
 
 
-
-class Layer(val str: String) {
+class Component( val name: String) {
     companion object {
         var counter = 0
     }
 
+    var layer=false
     val id = counter++
     val box = Rectangle().apply {
         this.width = 300.0
         height = 200.0
         fill = Paint.valueOf("FF0")
+        
     }
     var image: ImageView? = null
 
@@ -43,7 +49,7 @@ class FXMLController2 : Initializable {
     var nowselect: Node? = null
 
     @FXML
-    private lateinit var tree: TreeView<Layer>
+    private lateinit var tree: TreeView<Component>
     @FXML
     private lateinit var boxPane: AnchorPane
     @FXML
@@ -54,9 +60,31 @@ class FXMLController2 : Initializable {
     private lateinit var pane1: TitledPane
     @FXML
     private lateinit var accordion: Accordion
+    @FXML
+    private lateinit var circle:Circle
+    @FXML
+    private lateinit var mypane:Pane
 
-    fun createLayer(str: String): Layer {
-        return Layer(str)
+    override fun initialize(url: URL?, rb: ResourceBundle?) {
+        selectbox.isVisible = false
+        val menu = createMenu()
+
+        val root=Component("root")
+        root.layer=true
+        tree.root = TreeItem(root, null)
+        tree.setCellFactory { TextFieldTreeCellImpl(menu) }
+
+
+        selectbox.isMouseTransparent = true
+        mypane.isMouseTransparent=true
+        makeDraggable(selectbox)
+
+        filebtn.setOnAction(this::onSetImg)
+        accordion.expandedPane=pane1
+    }
+
+    fun createLayer(str: String): Component {
+        return Component(str)
     }
 
     fun createMenu(): ContextMenu {
@@ -64,6 +92,9 @@ class FXMLController2 : Initializable {
             val addMenuItem = MenuItem("Add Employee")
             items.add(addMenuItem)
             addMenuItem.setOnAction(this@FXMLController2::addLayer)
+            val group = MenuItem("Add group")
+            items.add(group)
+            group.setOnAction(this@FXMLController2::addGroup)
         }
     }
 
@@ -73,23 +104,14 @@ class FXMLController2 : Initializable {
         tree.selectionModel.selectedItem.children.add(newEmployee)
         boxPane.children.add(l.box)
         makeDraggable(l.box)
-
+    }
+    fun addGroup(ae: ActionEvent) {
+        val l = Component("bbb")
+        l.layer=true
+        val newEmployee = TreeItem(l)
+        tree.selectionModel.selectedItem.children.add(newEmployee)
     }
 
-    override fun initialize(url: URL?, rb: ResourceBundle?) {
-        selectbox.isVisible = false
-        val menu = createMenu()
-
-        tree.root = TreeItem(Layer("root"), null)
-        tree.setCellFactory { TextFieldTreeCellImpl(menu) }
-
-
-        selectbox.isMouseTransparent = true
-        makeDraggable(selectbox)
-
-        filebtn.setOnAction(this::onSetImg)
-        accordion.expandedPane=pane1
-    }
 
     internal class Delta {
         var x: Double = 0.toDouble()
@@ -137,6 +159,7 @@ class FXMLController2 : Initializable {
         }
 
         makeDraggable(img)
+        //DragResizer.makeResizable(img)
         selected.value.image = img
         boxPane.children.add(selected.value.image)
 
@@ -166,6 +189,13 @@ class FXMLController2 : Initializable {
         selectbox.width = w
         selectbox.height = h
         selectbox.toFront()
+
+        // circle
+        circle.centerX=node.layoutX+selectbox.width
+        circle.centerY=node.layoutY+selectbox.height
+
+        circle.toFront()
+        mypane.toFront()
         findTree(tree.root) { it.value.hasNode(nowselect!!) }?.let {
             tree.selectionModel.select(it)
         }
@@ -200,7 +230,7 @@ class FXMLController2 : Initializable {
     }
 
 
-    private inner class TextFieldTreeCellImpl(val menu: ContextMenu) : TreeCell<Layer>() {
+    private inner class TextFieldTreeCellImpl(val menu: ContextMenu) : TreeCell<Component>() {
 
 
         override fun startEdit() {
@@ -213,25 +243,104 @@ class FXMLController2 : Initializable {
         override fun cancelEdit() {
             super.cancelEdit()
 
-            text = item.str
+            text = item.name
             graphic = treeItem.graphic
         }
 
-        override fun updateItem(item: Layer?, empty: Boolean) {
+        override fun updateItem(item: Component?, empty: Boolean) {
             super.updateItem(item, empty)
 
+            contextMenu = null
             if (empty) {
                 text = null
                 graphic = null
             } else {
-                text = item!!.str
+                text = item!!.name
                 graphic = treeItem.graphic
-                if (!treeItem.isLeaf && treeItem.parent != null) {
+                if(item.layer){
+                    contextMenu = menu
                 }
             }
-            contextMenu = menu
         }
 
     }
 
+}
+class DragResizer private constructor(private val region: Node) {
+
+    private var y: Double = 0.toDouble()
+
+    private var initMinHeight: Boolean = false
+
+    private var dragging: Boolean = false
+
+    protected fun mouseReleased(event: MouseEvent) {
+        dragging = false
+        region.cursor = Cursor.DEFAULT
+    }
+
+    protected fun mouseOver(event: MouseEvent) {
+        if (isInDraggableZone(event) || dragging) {
+            region.cursor = Cursor.S_RESIZE
+        } else {
+            region.cursor = Cursor.DEFAULT
+        }
+    }
+
+    protected fun isInDraggableZone(event: MouseEvent): Boolean {
+        return event.y > (region as ImageView).fitHeight - RESIZE_MARGIN
+    }
+
+    protected fun mouseDragged(event: MouseEvent) {
+        if (!dragging) {
+            return
+        }
+
+        val mousey = event.y
+
+        val newHeight = (region as ImageView).minHeight(0.0) + (mousey - y)
+
+        //region.(newHeight)
+        (region as ImageView).fitHeight+=mousey-y
+
+        y = mousey
+    }
+
+    protected fun mousePressed(event: MouseEvent) {
+
+        // ignore clicks outside of the draggable margin
+        if (!isInDraggableZone(event)) {
+            return
+        }
+
+        dragging = true
+
+        // make sure that the minimum height is set to the current height once,
+        // setting a min height that is smaller than the current height will
+        // have no effect
+        //if (!initMinHeight) {
+        //    region.setMinHeight(region.getHeight())
+        //    initMinHeight = true
+        //}
+
+        y = event.getY()
+    }
+
+    companion object {
+
+        /**
+         * The margin around the control that a user can click in to start resizing
+         * the region.
+         */
+        private val RESIZE_MARGIN = 5
+
+        fun makeResizable(region: ImageView) {
+            val resizer = DragResizer(region)
+
+            region.onMousePressed = EventHandler<MouseEvent> { event -> resizer.mousePressed(event) }
+            region.onMouseDragged = EventHandler<MouseEvent> { event -> resizer.mouseDragged(event) }
+            region.setOnMouseMoved { event -> resizer.mouseOver(event) }
+            region.setOnMouseReleased { event -> resizer.mouseReleased(event) }
+        }
+    }
 }
